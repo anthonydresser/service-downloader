@@ -18,7 +18,7 @@ class ServerProvider {
         this.eventEmitter = new eventemitter2_1.EventEmitter2({ wildcard: true });
         this._downloadProvider = new serviceDownloadProvider_1.ServiceDownloadProvider(this.config);
         this._downloadProvider.eventEmitter.onAny((e, ...args) => {
-            this.eventEmitter.emit(e, args);
+            this.eventEmitter.emit(e, ...args);
         });
     }
     get runtime() {

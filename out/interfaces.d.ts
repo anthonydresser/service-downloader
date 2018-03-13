@@ -17,7 +17,7 @@ export interface IConfig {
 }
 export declare const enum Events {
     /**
-     * Download start, downloading url and data will be the size of the download in bytes
+     * Download start, data will be downloading url and size of the download in bytes
      */
     DOWNLOAD_START = "download_start",
     /**
