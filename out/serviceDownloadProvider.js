@@ -130,7 +130,7 @@ class ServiceDownloadProvider {
         });
     }
     install(pkg) {
-        this.eventEmitter.emit("install_start" /* INSTALL_START */);
+        this.eventEmitter.emit("install_start" /* INSTALL_START */, pkg.installPath);
         return decompress(pkg.tmpFile.name, pkg.installPath).then(() => {
             this.eventEmitter.emit("install_end" /* INSTALL_END */);
         });
