@@ -11,6 +11,7 @@ const eventemitter2_1 = require("eventemitter2");
 const tmp = require("tmp");
 const platform_1 = require("./platform");
 const httpClient_1 = require("./httpClient");
+const errors_1 = require("./errors");
 /*
 * Service Download Provider class which handles downloading the service client
 */
@@ -30,15 +31,13 @@ class ServiceDownloadProvider {
      */
     getDownloadFileName(platform) {
         let fileNamesJson = this._config.downloadFileNames;
-        console.info('Platform: ', platform.toString());
-        let fileName = fileNamesJson[platform.toString()];
-        console.info('Filename: ', fileName);
+        let fileName = fileNamesJson[platform];
         if (fileName === undefined) {
             if (process.platform === 'linux') {
-                throw new Error('Unsupported linux distribution');
+                throw new errors_1.DistributionNotSupportedError('Unsupported linux distribution', process.platform, platform.toString());
             }
             else {
-                throw new Error(`Unsupported platform: ${process.platform}`);
+                throw new errors_1.PlatformNotSupportedError(`Unsupported platform: ${process.platform}`, process.platform);
             }
         }
         return fileName;
@@ -47,7 +46,7 @@ class ServiceDownloadProvider {
      * Returns SQL tools service installed folder.
      */
     getInstallDirectory(platform) {
-        let basePath = this.getInstallDirectoryRoot(platform);
+        let basePath = this._config.installDirectory;
         let versionFromConfig = this._config.version;
         basePath = basePath.replace('{#version#}', versionFromConfig);
         basePath = basePath.replace('{#platform#}', platform_1.getRuntimeDisplayName(platform));
@@ -68,20 +67,6 @@ class ServiceDownloadProvider {
                     return process.env.HOME;
             }
         }
-    }
-    /**
-     * Returns SQL tools service installed folder root.
-     */
-    getInstallDirectoryRoot(platform) {
-        let installDirFromConfig = this._config.installDirectory;
-        if (!installDirFromConfig || installDirFromConfig === '') {
-            let rootFolderName = '.sqlops';
-            if (platform === platform_1.Runtime.Windows_64 || platform === platform_1.Runtime.Windows_86) {
-                rootFolderName = 'sqlops';
-            }
-            // installDirFromConfig = path.join(this.getLocalUserFolderPath(platform), `/${rootFolderName}/${this._extensionConstants.installFolderName}/{#version#}/{#platform#}`);
-        }
-        return installDirFromConfig;
     }
     getGetDownloadUrl(fileName) {
         let baseDownloadUrl = this._config.downloadUrl;
