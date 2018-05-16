@@ -49,7 +49,8 @@ export class ServerProvider {
     }
 
     private findRuntime(): Promise<Runtime> {
-        return PlatformInformation.getCurrent().then(p => {
+        let useDefaultLinuxRuntime = this.config.useDefaultLinuxRuntime ? true : false;
+        return PlatformInformation.getCurrent(useDefaultLinuxRuntime).then(p => {
             return p.runtimeId;
         });
     }
