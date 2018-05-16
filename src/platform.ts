@@ -230,7 +230,7 @@ export class PlatformInformation {
 		return result;
 	}
 
-	public static getCurrent(useDefaultLinuxRuntime: boolean): Promise<PlatformInformation> {
+	public static getCurrent(useDefaultLinuxRuntime: boolean = false): Promise<PlatformInformation> {
 		let platform = os.platform();
 		let architecturePromise: Promise<string>;
 		let distributionPromise: Promise<LinuxDistribution>;
