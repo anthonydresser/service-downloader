@@ -66,7 +66,7 @@ function getRuntimeIdLinux(distributionName: string, distributionVersion: string
  * Returns a supported .NET Core Runtime ID (RID) for the current platform. The list of Runtime IDs
  * is available at https://github.com/dotnet/corefx/tree/master/pkg/Microsoft.NETCore.Platforms.
  */
-export function getRuntimeId(platform: string, architecture: string, distribution: LinuxDistribution): Runtime {
+export function getRuntimeId(platform: string, architecture: string, distribution: LinuxDistribution, useDefaultLinuxRuntime: boolean): Runtime {
 	switch (platform) {
 		case 'win32':
 			switch (architecture) {
@@ -89,7 +89,7 @@ export function getRuntimeId(platform: string, architecture: string, distributio
 			if (architecture === 'x86_64') {
 
 				// First try the distribution name
-				let runtimeId = getRuntimeIdLinux(distribution.name, distribution.version);
+				let runtimeId = useDefaultLinuxRuntime ? Runtime.Linux_64 : getRuntimeIdLinux(distribution.name, distribution.version);
 
 				// If the distribution isn't one that we understand, but the 'ID_LIKE' field has something that we understand, use that
 				//
@@ -174,9 +174,12 @@ export class PlatformInformation {
 	public constructor(
 		public platform: string,
 		public architecture: string,
-		public distribution: LinuxDistribution = undefined) {
+		public distribution: LinuxDistribution,
+		useDefaultLinuxRuntime: boolean
+	) {
+		distribution = distribution ? distribution : undefined;	
 		try {
-			this.runtimeId = getRuntimeId(platform, architecture, distribution);
+			this.runtimeId = getRuntimeId(platform, architecture, distribution, useDefaultLinuxRuntime);
 		} catch (err) {
 			this.runtimeId = undefined;
 		}
@@ -224,7 +227,7 @@ export class PlatformInformation {
 		return result;
 	}
 
-	public static getCurrent(): Promise<PlatformInformation> {
+	public static getCurrent(useDefaultLinuxRuntime: boolean = false): Promise<PlatformInformation> {
 		let platform = os.platform();
 		let architecturePromise: Promise<string>;
 		let distributionPromise: Promise<LinuxDistribution>;
@@ -250,7 +253,7 @@ export class PlatformInformation {
 		}
 
 		return Promise.all([architecturePromise, distributionPromise]).then(rt => {
-			return new PlatformInformation(platform, rt[0], rt[1]);
+			return new PlatformInformation(platform, rt[0], rt[1], useDefaultLinuxRuntime);
 		});
 	}
 

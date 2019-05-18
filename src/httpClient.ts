@@ -53,7 +53,11 @@ export class HttpClient {
 
             request.on('error', error => {
                 // reject(new PackageError(`Request error: ${error.code || 'NONE'}`, pkg, error));
-                reject(new Error(`Request error: ${error.name || 'NONE'}`));
+                let messageString = '';
+                if (error.message) {
+                    messageString = `, message '${error.message}'`;
+                }
+                reject(new Error(`File download failed with error ${error.name || 'NONE'}${messageString}`));
             });
 
             // Execute the request

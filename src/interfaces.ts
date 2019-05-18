@@ -16,6 +16,11 @@ export interface IConfig {
      * A map from the platform string to the filename to look for in the download url
      */
     downloadFileNames: { [platform: string]: string };
+    /**
+     * Optional setting to use a default Linux runtime instead of a version-specific distribution.
+     * Defaults to false
+     */
+    useDefaultLinuxRuntime?: boolean;
     version: string;
     /**
      * Absolute path for the install directory of the service.
