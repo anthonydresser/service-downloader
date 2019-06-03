@@ -1,8 +1,3 @@
-/**
- * Returns a supported .NET Core Runtime ID (RID) for the current platform. The list of Runtime IDs
- * is available at https://github.com/dotnet/corefx/tree/master/pkg/Microsoft.NETCore.Platforms.
- */
-export declare function getRuntimeId(platform: string, architecture: string, distribution: LinuxDistribution): Runtime;
 export declare enum Runtime {
     Unknown,
     Windows_86,
@@ -19,6 +14,27 @@ export declare enum Runtime {
     Linux_64,
     Linux_86,
 }
+/**
+ * There is no standard way on Linux to find the distribution name and version.
+ * Recently, systemd has pushed to standardize the os-release file. This has
+ * seen adoption in "recent" versions of all major distributions.
+ * https://www.freedesktop.org/software/systemd/man/os-release.html
+ */
+export declare class LinuxDistribution {
+    name: string;
+    version: string;
+    idLike: string[];
+    constructor(name: string, version: string, idLike?: string[]);
+    static getCurrent(): Promise<LinuxDistribution>;
+    toString(): string;
+    private static fromFilePath(filePath);
+    static fromReleaseInfo(releaseInfo: string, eol?: string): LinuxDistribution;
+}
+/**
+ * Returns a supported .NET Core Runtime ID (RID) for the current platform. The list of Runtime IDs
+ * is available at https://github.com/dotnet/corefx/tree/master/pkg/Microsoft.NETCore.Platforms.
+ */
+export declare function getRuntimeId(platform: string, architecture: string, distribution: LinuxDistribution): Runtime;
 export declare function getRuntimeDisplayName(runtime: Runtime): string;
 export declare class PlatformInformation {
     platform: string;
@@ -38,20 +54,4 @@ export declare class PlatformInformation {
     private static getWindowsArchitectureEnv();
     private static getUnixArchitecture();
     private static execChildProcess(process);
-}
-/**
- * There is no standard way on Linux to find the distribution name and version.
- * Recently, systemd has pushed to standardize the os-release file. This has
- * seen adoption in "recent" versions of all major distributions.
- * https://www.freedesktop.org/software/systemd/man/os-release.html
- */
-export declare class LinuxDistribution {
-    name: string;
-    version: string;
-    idLike: string[];
-    constructor(name: string, version: string, idLike?: string[]);
-    static getCurrent(): Promise<LinuxDistribution>;
-    toString(): string;
-    private static fromFilePath(filePath);
-    static fromReleaseInfo(releaseInfo: string, eol?: string): LinuxDistribution;
 }

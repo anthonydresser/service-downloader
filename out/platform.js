@@ -9,6 +9,93 @@ const cp = require("child_process");
 const fs = require("fs");
 const errors_1 = require("./errors");
 const unknown = 'unknown';
+var Runtime;
+(function (Runtime) {
+    Runtime[Runtime["Unknown"] = 'Unknown'] = "Unknown";
+    Runtime[Runtime["Windows_86"] = 'Windows_86'] = "Windows_86";
+    Runtime[Runtime["Windows_64"] = 'Windows_64'] = "Windows_64";
+    Runtime[Runtime["OSX"] = 'OSX'] = "OSX";
+    Runtime[Runtime["CentOS_7"] = 'CentOS_7'] = "CentOS_7";
+    Runtime[Runtime["Debian_8"] = 'Debian_8'] = "Debian_8";
+    Runtime[Runtime["Fedora_23"] = 'Fedora_23'] = "Fedora_23";
+    Runtime[Runtime["OpenSUSE_13_2"] = 'OpenSUSE_13_2'] = "OpenSUSE_13_2";
+    Runtime[Runtime["SLES_12_2"] = 'SLES_12_2'] = "SLES_12_2";
+    Runtime[Runtime["RHEL_7"] = 'RHEL_7'] = "RHEL_7";
+    Runtime[Runtime["Ubuntu_14"] = 'Ubuntu_14'] = "Ubuntu_14";
+    Runtime[Runtime["Ubuntu_16"] = 'Ubuntu_16'] = "Ubuntu_16";
+    Runtime[Runtime["Linux_64"] = 'Linux_64'] = "Linux_64";
+    Runtime[Runtime["Linux_86"] = 'Linux-86'] = "Linux_86";
+})(Runtime = exports.Runtime || (exports.Runtime = {}));
+/**
+ * There is no standard way on Linux to find the distribution name and version.
+ * Recently, systemd has pushed to standardize the os-release file. This has
+ * seen adoption in "recent" versions of all major distributions.
+ * https://www.freedesktop.org/software/systemd/man/os-release.html
+ */
+class LinuxDistribution {
+    constructor(name, version, idLike) {
+        this.name = name;
+        this.version = version;
+        this.idLike = idLike;
+    }
+    static getCurrent() {
+        // Try /etc/os-release and fallback to /usr/lib/os-release per the synopsis
+        // at https://www.freedesktop.org/software/systemd/man/os-release.html.
+        return LinuxDistribution.fromFilePath('/etc/os-release')
+            .catch(() => LinuxDistribution.fromFilePath('/usr/lib/os-release'))
+            .catch(() => Promise.resolve(new LinuxDistribution(unknown, unknown)));
+    }
+    toString() {
+        return `name=${this.name}, version=${this.version}`;
+    }
+    static fromFilePath(filePath) {
+        return new Promise((resolve, reject) => {
+            fs.readFile(filePath, 'utf8', (error, data) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(LinuxDistribution.fromReleaseInfo(data));
+                }
+            });
+        });
+    }
+    static fromReleaseInfo(releaseInfo, eol = os.EOL) {
+        let name = unknown;
+        let version = unknown;
+        let idLike = undefined;
+        const lines = releaseInfo.split(eol);
+        for (let line of lines) {
+            line = line.trim();
+            let equalsIndex = line.indexOf('=');
+            if (equalsIndex >= 0) {
+                let key = line.substring(0, equalsIndex);
+                let value = line.substring(equalsIndex + 1);
+                // Strip quotes if necessary
+                if (value.length > 1 && value.startsWith('"') && value.endsWith('"')) {
+                    value = value.substring(1, value.length - 1);
+                }
+                else if (value.length > 1 && value.startsWith('\'') && value.endsWith('\'')) {
+                    value = value.substring(1, value.length - 1);
+                }
+                if (key === 'ID') {
+                    name = value;
+                }
+                else if (key === 'VERSION_ID') {
+                    version = value;
+                }
+                else if (key === 'ID_LIKE') {
+                    idLike = value.split(' ');
+                }
+                if (name !== unknown && version !== unknown && idLike !== undefined) {
+                    break;
+                }
+            }
+        }
+        return new LinuxDistribution(name, version, idLike);
+    }
+}
+exports.LinuxDistribution = LinuxDistribution;
 function getRuntimeIdLinux(distributionName, distributionVersion) {
     switch (distributionName) {
         case 'ubuntu':
@@ -107,23 +194,6 @@ function getRuntimeId(platform, architecture, distribution) {
     }
 }
 exports.getRuntimeId = getRuntimeId;
-var Runtime;
-(function (Runtime) {
-    Runtime[Runtime["Unknown"] = 'Unknown'] = "Unknown";
-    Runtime[Runtime["Windows_86"] = 'Windows_86'] = "Windows_86";
-    Runtime[Runtime["Windows_64"] = 'Windows_64'] = "Windows_64";
-    Runtime[Runtime["OSX"] = 'OSX'] = "OSX";
-    Runtime[Runtime["CentOS_7"] = 'CentOS_7'] = "CentOS_7";
-    Runtime[Runtime["Debian_8"] = 'Debian_8'] = "Debian_8";
-    Runtime[Runtime["Fedora_23"] = 'Fedora_23'] = "Fedora_23";
-    Runtime[Runtime["OpenSUSE_13_2"] = 'OpenSUSE_13_2'] = "OpenSUSE_13_2";
-    Runtime[Runtime["SLES_12_2"] = 'SLES_12_2'] = "SLES_12_2";
-    Runtime[Runtime["RHEL_7"] = 'RHEL_7'] = "RHEL_7";
-    Runtime[Runtime["Ubuntu_14"] = 'Ubuntu_14'] = "Ubuntu_14";
-    Runtime[Runtime["Ubuntu_16"] = 'Ubuntu_16'] = "Ubuntu_16";
-    Runtime[Runtime["Linux_64"] = 'Linux_64'] = "Linux_64";
-    Runtime[Runtime["Linux_86"] = 'Linux-86'] = "Linux_86";
-})(Runtime = exports.Runtime || (exports.Runtime = {}));
 function getRuntimeDisplayName(runtime) {
     switch (runtime) {
         case Runtime.Windows_64:
@@ -227,14 +297,14 @@ class PlatformInformation {
     static getWindowsArchitecture() {
         return new Promise((resolve, reject) => {
             // try to get the architecture from WMIC
-            PlatformInformation.getWindowsArchitectureWmic().then(architecture => {
-                if (architecture && architecture !== unknown) {
-                    resolve(architecture);
+            PlatformInformation.getWindowsArchitectureWmic().then(wmiArch => {
+                if (wmiArch && wmiArch !== unknown) {
+                    resolve(wmiArch);
                 }
                 else {
                     // sometimes WMIC isn't available on the path so then try to parse the envvar
-                    PlatformInformation.getWindowsArchitectureEnv().then(architecture => {
-                        resolve(architecture);
+                    PlatformInformation.getWindowsArchitectureEnv().then(envArch => {
+                        resolve(envArch);
                     });
                 }
             });
@@ -297,74 +367,4 @@ class PlatformInformation {
     }
 }
 exports.PlatformInformation = PlatformInformation;
-/**
- * There is no standard way on Linux to find the distribution name and version.
- * Recently, systemd has pushed to standardize the os-release file. This has
- * seen adoption in "recent" versions of all major distributions.
- * https://www.freedesktop.org/software/systemd/man/os-release.html
- */
-class LinuxDistribution {
-    constructor(name, version, idLike) {
-        this.name = name;
-        this.version = version;
-        this.idLike = idLike;
-    }
-    static getCurrent() {
-        // Try /etc/os-release and fallback to /usr/lib/os-release per the synopsis
-        // at https://www.freedesktop.org/software/systemd/man/os-release.html.
-        return LinuxDistribution.fromFilePath('/etc/os-release')
-            .catch(() => LinuxDistribution.fromFilePath('/usr/lib/os-release'))
-            .catch(() => Promise.resolve(new LinuxDistribution(unknown, unknown)));
-    }
-    toString() {
-        return `name=${this.name}, version=${this.version}`;
-    }
-    static fromFilePath(filePath) {
-        return new Promise((resolve, reject) => {
-            fs.readFile(filePath, 'utf8', (error, data) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    resolve(LinuxDistribution.fromReleaseInfo(data));
-                }
-            });
-        });
-    }
-    static fromReleaseInfo(releaseInfo, eol = os.EOL) {
-        let name = unknown;
-        let version = unknown;
-        let idLike = undefined;
-        const lines = releaseInfo.split(eol);
-        for (let line of lines) {
-            line = line.trim();
-            let equalsIndex = line.indexOf('=');
-            if (equalsIndex >= 0) {
-                let key = line.substring(0, equalsIndex);
-                let value = line.substring(equalsIndex + 1);
-                // Strip quotes if necessary
-                if (value.length > 1 && value.startsWith('"') && value.endsWith('"')) {
-                    value = value.substring(1, value.length - 1);
-                }
-                else if (value.length > 1 && value.startsWith('\'') && value.endsWith('\'')) {
-                    value = value.substring(1, value.length - 1);
-                }
-                if (key === 'ID') {
-                    name = value;
-                }
-                else if (key === 'VERSION_ID') {
-                    version = value;
-                }
-                else if (key === 'ID_LIKE') {
-                    idLike = value.split(' ');
-                }
-                if (name !== unknown && version !== unknown && idLike !== undefined) {
-                    break;
-                }
-            }
-        }
-        return new LinuxDistribution(name, version, idLike);
-    }
-}
-exports.LinuxDistribution = LinuxDistribution;
 //# sourceMappingURL=platform.js.map

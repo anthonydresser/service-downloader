@@ -55,19 +55,6 @@ class ServiceDownloadProvider {
         }
         return basePath;
     }
-    getLocalUserFolderPath(platform) {
-        if (platform) {
-            switch (platform) {
-                case platform_1.Runtime.Windows_64:
-                case platform_1.Runtime.Windows_86:
-                    return process.env.APPDATA;
-                case platform_1.Runtime.OSX:
-                    return process.env.HOME + '/Library/Preferences';
-                default:
-                    return process.env.HOME;
-            }
-        }
-    }
     getGetDownloadUrl(fileName) {
         let baseDownloadUrl = this._config.downloadUrl;
         let version = this._config.version;

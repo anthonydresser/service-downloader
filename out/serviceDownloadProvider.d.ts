@@ -14,7 +14,6 @@ export declare class ServiceDownloadProvider {
      * Returns SQL tools service installed folder.
      */
     getInstallDirectory(platform: Runtime): string;
-    private getLocalUserFolderPath(platform);
     private getGetDownloadUrl(fileName);
     /**
      * Downloads the service and decompress it in the install folder.
