@@ -22,7 +22,7 @@ export class HttpClient {
     /*
      * Downloads a file and stores the result in the temp file inside the package object
      */
-    public async downloadFile(urlString: string, pkg: IPackage, proxy?: string, strictSSL?: boolean): Promise<void> {
+    public downloadFile(urlString: string, pkg: IPackage, proxy?: string, strictSSL?: boolean): Promise<void> {
         const url = parseUrl(urlString);
         let options = this.getHttpClientOptions(url, proxy, strictSSL);
         let clientRequest = url.protocol === 'http:' ? http.request : https.request;
