@@ -19,10 +19,10 @@ export class HttpClient {
 
     public readonly eventEmitter = new EventEmitter({ wildcard: true });
 
-   /*
-    * Downloads a file and stores the result in the temp file inside the package object
-    */
-    public downloadFile(urlString: string, pkg: IPackage, proxy?: string, strictSSL?: boolean): Promise<void> {
+    /*
+     * Downloads a file and stores the result in the temp file inside the package object
+     */
+    public async downloadFile(urlString: string, pkg: IPackage, proxy?: string, strictSSL?: boolean): Promise<void> {
         const url = parseUrl(urlString);
         let options = this.getHttpClientOptions(url, proxy, strictSSL);
         let clientRequest = url.protocol === 'http:' ? http.request : https.request;
@@ -73,10 +73,10 @@ export class HttpClient {
 
         if (url.protocol === 'https:') {
             let httpsOptions: https.RequestOptions = {
-                    host: url.hostname,
-                    path: url.path,
-                    agent: agent,
-                    port: +url.port
+                host: url.hostname,
+                path: url.path,
+                agent: agent,
+                port: +url.port
             };
             options = httpsOptions;
         }
@@ -84,9 +84,9 @@ export class HttpClient {
         return options;
     }
 
-   /*
-    * Calculate the download percentage and stores in the progress object
-    */
+    /*
+     * Calculate the download percentage and stores in the progress object
+     */
     public handleDataReceivedEvent(progress: IDownloadProgress, data: any): void {
         progress.downloadedBytes += data.length;
 

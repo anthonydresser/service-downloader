@@ -77,39 +77,45 @@ export class ServiceDownloadProvider {
     /**
      * Downloads the service and decompress it in the install folder.
      */
-    public installService(platform: Runtime): Promise<boolean> {
+    public async installService(platform: Runtime): Promise<boolean> {
         const proxy = this._config.proxy;
         const strictSSL = this._config.strictSSL;
+        const fileName = this.getDownloadFileName(platform);
+        const installDirectory = this.getInstallDirectory(platform);
+        const urlString = this.getGetDownloadUrl(fileName);
 
-        return new Promise<boolean>((resolve, reject) => {
-            const fileName = this.getDownloadFileName(platform);
-            const installDirectory = this.getInstallDirectory(platform);
+        const pkg: IPackage = {
+            installPath: installDirectory,
+            url: urlString,
+            tmpFile: undefined
+        };
 
-            const urlString = this.getGetDownloadUrl(fileName);
-
-            let pkg: IPackage = {
-                installPath: installDirectory,
-                url: urlString,
-                tmpFile: undefined
-            };
-            const downloadAndInstall: () => Promise<void> = async () => {
+        const downloadAndInstall: () => Promise<void> = async () => {
+            try {
+                pkg.tmpFile = await this.createTempFile(pkg);
+                console.info(`\tdownloading the package to file: ${pkg.tmpFile.name}`);
                 await this.httpClient.downloadFile(pkg.url, pkg, proxy, strictSSL);
+                console.info(`\tinstalling the package from file: ${pkg.tmpFile.name}`);
                 await this.install(pkg);
-                resolve(true);
-            };
-            this.createTempFile(pkg).then(tmpResult => {
-                pkg.tmpFile = tmpResult;
-                if (this._config.retry && this._config.retry.enabled) {
-                    this.withRetry(downloadAndInstall, this._config.retry.options);
-                } else {
-                    downloadAndInstall();
-                }
 
-            });
-        });
+            } finally {
+                // remove the downloaded package file
+                if (fs.existsSync(pkg.tmpFile.name)) {
+                    fs.unlinkSync(pkg.tmpFile.name);
+                    console.info(`\tdeleted the package file: ${pkg.tmpFile.name}`);
+                }
+            }
+        };
+
+        if (this._config.retry && this._config.retry.enabled) {
+            await this.withRetry(downloadAndInstall, this._config.retry.options);
+        } else {
+            await downloadAndInstall();
+        }
+        return true;
     }
 
-    private createTempFile(pkg: IPackage): Promise<tmp.SynchrounousResult> {
+    private async createTempFile(pkg: IPackage): Promise<tmp.SynchrounousResult> {
         return new Promise<tmp.SynchrounousResult>((resolve, reject) => {
             tmp.file({ prefix: 'package-' }, (err, path, fd, cleanupCallback) => {
                 if (err) {
