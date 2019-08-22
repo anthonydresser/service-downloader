@@ -93,7 +93,8 @@ export class ServiceDownloadProvider {
         const downloadAndInstall: () => Promise<void> = async () => {
             try {
                 pkg.tmpFile = await this.createTempFile(pkg);
-                console.info(`\tdownloading the package: ${pkg.url} to file: ${pkg.tmpFile.name}`);
+				console.info(`\tdownloading the package: ${pkg.url}`);
+				console.info(`\t                to file: ${pkg.tmpFile.name}`);
                 await this.httpClient.downloadFile(pkg.url, pkg, proxy, strictSSL);
                 console.info(`\tinstalling the package from file: ${pkg.tmpFile.name}`);
                 await this.install(pkg);
@@ -107,8 +108,8 @@ export class ServiceDownloadProvider {
             }
         };
 
-        if (this._config.retry && this._config.retry.enabled) {
-            await this.withRetry(downloadAndInstall, this._config.retry.options);
+        if (this._config.retry) {
+            await this.withRetry(downloadAndInstall, this._config.retry);
         } else {
             await downloadAndInstall();
         }

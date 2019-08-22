@@ -37,10 +37,35 @@ export interface IConfig {
      * Enabled flag is used to turn it on or off. It is off by default.
      * Options object is a pass through configuration to the http://npmjs.org/retry module.
      */
-    retry?: {
-        enabled: boolean,
-        options: any
-    }
+    retry?: IRetryOptions;
+}
+
+/**
+ * Retry configuration passed to the http://npmjs.org/promise-retry module.
+ * See http://npmjs.org/retry for more details on these options.
+ */
+export interface IRetryOptions {
+    /**
+     * The maximum amount of times to retry the operation. Default is 10. Setting this to 1 means do it once, then retry it once.
+     */
+    retries: number;
+    /**
+     * The exponential factor to use. Default is 2.
+     */
+    factor: number;
+    /**
+     * The number of milliseconds before starting the first retry. Default is 1000.
+     */
+    minTimeout: number;
+    /**
+     * The maximum number of milliseconds between two retries. Once this value is reached the timeout between successive 
+     * retries is the value configured for this field. Default is Infinity.
+     */
+    maxTimeout: number;
+    /**
+     * Randomizes the timeouts by multiplying with a factor between 1 to 2. Default is false.
+     */
+    randomize: boolean;
 }
 
 export const enum Events {
