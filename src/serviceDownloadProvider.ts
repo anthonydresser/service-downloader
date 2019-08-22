@@ -92,18 +92,19 @@ export class ServiceDownloadProvider {
                 url: urlString,
                 tmpFile: undefined
             };
+            const downloadAndInstall: () => Promise<void> = async () => {
+                await this.httpClient.downloadFile(pkg.url, pkg, proxy, strictSSL);
+                await this.install(pkg);
+                resolve(true);
+            };
             this.createTempFile(pkg).then(tmpResult => {
                 pkg.tmpFile = tmpResult;
+                if (this._config.retry && this._config.retry.enabled) {
+                    this.withRetry(downloadAndInstall, this._config.retry.options);
+                } else {
+                    downloadAndInstall();
+                }
 
-                this.httpClient.downloadFile(pkg.url, pkg, proxy, strictSSL).then(_ => {
-                    this.install(pkg).then(result => {
-                        resolve(true);
-                    }).catch(installError => {
-                        reject(installError);
-                    });
-                }).catch(downloadError => {
-                    reject(downloadError);
-                });
             });
         });
     }
@@ -120,10 +121,25 @@ export class ServiceDownloadProvider {
         });
     }
 
-    private install(pkg: IPackage): Promise<void> {
+    private async install(pkg: IPackage): Promise<void> {
         this.eventEmitter.emit(Events.INSTALL_START, pkg.installPath);
         return decompress(pkg.tmpFile.name, pkg.installPath).then(() => {
             this.eventEmitter.emit(Events.INSTALL_END);
+        });
+    }
+
+    private async withRetry(promiseToExecute: () => Promise<any>, retryOptions: any = {}): Promise<any> {
+        const promiseRetry = require('promise-retry');
+        // wrap function execution with a retry promise with its default configuration of 10 retries while backing off exponentially.
+        // https://www.npmjs.com/package/promise-retry
+        return await promiseRetry(retryOptions, async (retry, attemptNo) => {
+            try {
+                // run the main operation
+                return await promiseToExecute();
+            } catch (error) {
+                console.warn(`${(new Date()).toLocaleTimeString()}:attempt number:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
+                retry(error);
+            }
         });
     }
 }

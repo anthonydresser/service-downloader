@@ -32,6 +32,15 @@ export interface IConfig {
     proxy: string;
     strictSSL: boolean;
     executableFiles: Array<string>;
+    /**
+     * Optional configuration for retries.
+     * Enabled flag is used to turn it on or off. It is off by default.
+     * Options object is a pass through configuration to the http://npmjs.org/retry module.
+     */
+    retry?: {
+        enabled: boolean,
+        options: any
+    }
 }
 
 export const enum Events {
