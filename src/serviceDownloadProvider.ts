@@ -93,7 +93,7 @@ export class ServiceDownloadProvider {
         const downloadAndInstall: () => Promise<void> = async () => {
             try {
                 pkg.tmpFile = await this.createTempFile(pkg);
-                console.info(`\tdownloading the package to file: ${pkg.tmpFile.name}`);
+                console.info(`\tdownloading the package: ${pkg.url} to file: ${pkg.tmpFile.name}`);
                 await this.httpClient.downloadFile(pkg.url, pkg, proxy, strictSSL);
                 console.info(`\tinstalling the package from file: ${pkg.tmpFile.name}`);
                 await this.install(pkg);
