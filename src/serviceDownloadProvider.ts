@@ -144,7 +144,7 @@ export class ServiceDownloadProvider {
                 return await promiseToExecute();
             } catch (error) {
                 console.warn(`${(new Date()).toLocaleTimeString()}:attempt number:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
-                retry(error);
+                await retry(error);
             }
         });
     }
