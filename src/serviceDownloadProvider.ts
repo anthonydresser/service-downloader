@@ -110,7 +110,7 @@ export class ServiceDownloadProvider {
 
         // if this._config.retry is not defined then this.withRetry defaults to number of retries of 0
         // which is same as without retries.
-        await this.withRetry(downloadAndInstall, this._config.retry);
+        await withRetry(downloadAndInstall, this._config.retry);
         return true;
     }
 
@@ -132,32 +132,32 @@ export class ServiceDownloadProvider {
             this.eventEmitter.emit(Events.INSTALL_END);
         });
     }
+}
 
-    private async withRetry(promiseToExecute: () => Promise<any>, retryOptions: IRetryOptions = { retries: 0 }): Promise<any> {
-        // wrap function execution with a retry promise
-        // by default, it retries 10 times while backing off exponentially.
-        // retryOptions parameter can be used to configure how many and how often the retries happen.
-        // https://www.npmjs.com/package/promise-retry
-        return await AsyncRetry<any>(
-            async (bail: (e: Error) => void, attemptNo: number) => {
-                try {
-                    // run the main operation
-                    return await promiseToExecute();
-                } catch (error) {
-                    if (/403/.test(error)) {
-                        // don't retry upon 403
-                        bail(error);
-                        return;
-                    }
-                    if (attemptNo <= retryOptions.retries) {
-                        console.warn(`[${(new Date()).toLocaleTimeString('en-US', { hour12: false })}] `
-                                     + `Retrying...   as attempt:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
-                    }
-                    // throw back any other error so it can get retried by AsyncRetry as appropriate
-                    throw error;
+async function withRetry(promiseToExecute: () => Promise<any>, retryOptions: IRetryOptions = { retries: 0 }): Promise<any> {
+    // wrap function execution with a retry promise
+    // by default, it retries 10 times while backing off exponentially.
+    // retryOptions parameter can be used to configure how many and how often the retries happen.
+    // https://www.npmjs.com/package/promise-retry
+    return await AsyncRetry<any>(
+        async (bail: (e: Error) => void, attemptNo: number) => {
+            try {
+                // run the main operation
+                return await promiseToExecute();
+            } catch (error) {
+                if (/403/.test(error)) {
+                    // don't retry upon 403
+                    bail(error);
+                    return;
                 }
-            },
-            retryOptions
-        );
-    }
+                if (attemptNo <= retryOptions.retries) {
+                    console.warn(`[${(new Date()).toLocaleTimeString('en-US', { hour12: false })}] `
+                                 + `Retrying...   as attempt:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
+                }
+                // throw back any other error so it can get retried by AsyncRetry as appropriate
+                throw error;
+            }
+        },
+        retryOptions
+    );
 }
