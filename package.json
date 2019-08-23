@@ -13,6 +13,7 @@
   "author": "anthonydresser",
   "license": "ISC",
   "devDependencies": {
+    "@types/async-retry": "^1.4.1",
     "@types/node": "^9.4.6",
     "@types/tmp": "^0.0.33",
     "tslint": "^5.16.0",
@@ -20,6 +21,7 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
+    "async-retry": "^1.2.3",
     "decompress": "^4.2.0",
     "eventemitter2": "^5.0.1",
     "http-proxy-agent": "^2.1.0",
