@@ -91,8 +91,8 @@ export class ServiceDownloadProvider {
             tmpFile: undefined
         };
 
-		const existsAsync = promisify(fs.exists);
-		const unlinkAsync = promisify(fs.unlink);
+        const existsAsync = promisify(fs.exists);
+        const unlinkAsync = promisify(fs.unlink);
         const downloadAndInstall: () => Promise<void> = async () => {
             try {
                 pkg.tmpFile = await this.createTempFile(pkg);
@@ -155,7 +155,7 @@ async function withRetry(promiseToExecute: () => Promise<any>, retryOptions: IRe
                 }
                 if (attemptNo <= retryOptions.retries) {
                     console.warn(`[${(new Date()).toLocaleTimeString('en-US', { hour12: false })}] `
-                                 + `Retrying...   as attempt:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
+                        + `Retrying...   as attempt:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
                 }
                 // throw back any other error so it can get retried by asyncRetry as appropriate
                 throw error;
