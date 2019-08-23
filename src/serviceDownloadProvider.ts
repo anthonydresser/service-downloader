@@ -136,7 +136,7 @@ export class ServiceDownloadProvider {
     private async withRetry(promiseToExecute: () => Promise<any>, retryOptions: IRetryOptions = { retries: 0 }): Promise<any> {
         // wrap function execution with a retry promise
         // by default, it retries 10 times while backing off exponentially.
-        // retryOptions parameter can be used to configure, how many and how often the retries happen.
+        // retryOptions parameter can be used to configure how many and how often the retries happen.
         // https://www.npmjs.com/package/promise-retry
         return await AsyncRetry<any>(
             async (bail: (e: Error) => void, attemptNo: number) => {
