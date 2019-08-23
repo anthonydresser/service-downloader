@@ -153,7 +153,7 @@ export class ServiceDownloadProvider {
                         console.warn(`[${(new Date()).toLocaleTimeString('en-US', { hour12: false })}] `
                                      + `Retrying...   as attempt:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
                     }
-                    // throw back any other error so it can get retried upon by AsyncRetry as appropriate
+                    // throw back any other error so it can get retried by AsyncRetry as appropriate
                     throw error;
                 }
             },
