@@ -14,7 +14,8 @@ import { Runtime, getRuntimeDisplayName } from './platform';
 import { IConfig, IPackage, Events, IRetryOptions } from './interfaces';
 import { HttpClient } from './httpClient';
 import { PlatformNotSupportedError, DistributionNotSupportedError } from './errors';
-import * as AsyncRetry from 'async-retry';
+import { promisify } from 'util';
+import * as asyncRetry from 'async-retry';
 /*
 * Service Download Provider class which handles downloading the service client
 */
@@ -90,6 +91,8 @@ export class ServiceDownloadProvider {
             tmpFile: undefined
         };
 
+		const existsAsync = promisify(fs.exists);
+		const unlinkAsync = promisify(fs.unlink);
         const downloadAndInstall: () => Promise<void> = async () => {
             try {
                 pkg.tmpFile = await this.createTempFile(pkg);
@@ -101,8 +104,8 @@ export class ServiceDownloadProvider {
 
             } finally {
                 // remove the downloaded package file
-                if (fs.existsSync(pkg.tmpFile.name)) {
-                    fs.unlinkSync(pkg.tmpFile.name);
+                if (await existsAsync(pkg.tmpFile.name)) {
+                    await unlinkAsync(pkg.tmpFile.name);
                     console.info(`\tdeleted the package file: ${pkg.tmpFile.name}`);
                 }
             }
@@ -139,7 +142,7 @@ async function withRetry(promiseToExecute: () => Promise<any>, retryOptions: IRe
     // by default, it retries 10 times while backing off exponentially.
     // retryOptions parameter can be used to configure how many and how often the retries happen.
     // https://www.npmjs.com/package/promise-retry
-    return await AsyncRetry<any>(
+    return await asyncRetry<any>(
         async (bail: (e: Error) => void, attemptNo: number) => {
             try {
                 // run the main operation
@@ -154,7 +157,7 @@ async function withRetry(promiseToExecute: () => Promise<any>, retryOptions: IRe
                     console.warn(`[${(new Date()).toLocaleTimeString('en-US', { hour12: false })}] `
                                  + `Retrying...   as attempt:${attemptNo} to run '${promiseToExecute.name}' failed with: '${error}'.`);
                 }
-                // throw back any other error so it can get retried by AsyncRetry as appropriate
+                // throw back any other error so it can get retried by asyncRetry as appropriate
                 throw error;
             }
         },
