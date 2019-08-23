@@ -16,7 +16,8 @@
   "devDependencies": {
     "@types/async-retry": "^1.4.1",
     "@types/node": "^9.4.6",
-    "@types/tmp": "^0.0.33",
+	"@types/tmp": "^0.0.33",
+	"husky": "^0.13.1",
     "tslint": "^5.16.0",
     "tslint-microsoft-contrib": "^6.0.0",
     "typescript": "^2.7.2"
