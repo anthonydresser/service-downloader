@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npm run compile",
     "compile": "tsc -p ./src",
-    "tslint": "tslint --project src/tsconfig.json --config tslint.json --rules-dir node_modules/tslint-microsoft-contrib"
+	"tslint": "tslint --project src/tsconfig.json --config tslint.json --rules-dir node_modules/tslint-microsoft-contrib",
+	"precommit": "npm run tslint"
   },
   "author": "anthonydresser",
   "license": "ISC",
