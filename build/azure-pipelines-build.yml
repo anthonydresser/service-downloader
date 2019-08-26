@@ -9,5 +9,7 @@ steps:
     versionSpec: "9"
 
 - script: npm install
+  displayName: Npm Install
 
 - script: npm run tslint
+  display: TSLint
