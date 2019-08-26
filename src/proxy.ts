@@ -8,8 +8,7 @@ import * as HttpProxyAgent from 'http-proxy-agent';
 import * as HttpsProxyAgent from 'https-proxy-agent';
 
 function getSystemProxyURL(requestURL: Url): string {
-    if (requestURL.protocol === 'http:')
-    {
+    if (requestURL.protocol === 'http:') {
         return process.env.HTTP_PROXY || process.env.http_proxy || undefined;
     } else if (requestURL.protocol === 'https:') {
         return process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy || undefined;
