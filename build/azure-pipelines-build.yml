@@ -1,0 +1,13 @@
+steps:
+- script: |
+    set -e
+    sudo apt-get update
+  displayName: Linux preinstall
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: "9"
+
+- script: npm install
+
+- script: npm run tslint
