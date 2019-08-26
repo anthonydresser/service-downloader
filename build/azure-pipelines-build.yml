@@ -12,4 +12,4 @@ steps:
   displayName: Npm Install
 
 - script: npm run tslint
-  display: TSLint
+  displayName: TSLint
