@@ -58,7 +58,7 @@ export interface IRetryOptions {
      */
     minTimeout?: number;
     /**
-     * The maximum number of milliseconds between two retries. Once this value is reached the timeout between successive 
+     * The maximum number of milliseconds between two retries. Once this value is reached the timeout between successive
      * retries is the value configured for this field. Default is Infinity.
      */
     maxTimeout?: number;
