@@ -14,11 +14,11 @@
   "author": "anthonydresser",
   "license": "ISC",
   "devDependencies": {
-	"@types/async-retry": "^1.4.1",
-	"@types/mkdirp": "^0.5.1",
+    "@types/async-retry": "^1.4.1",
+    "@types/mkdirp": "^0.5.1",
     "@types/node": "^9.4.6",
-	"@types/tmp": "^0.0.33",
-	"@types/yauzl": "^2.9.1",
+    "@types/tmp": "^0.0.33",
+    "@types/yauzl": "^2.9.1",
     "husky": "^0.13.1",
     "tslint": "^5.16.0",
     "tslint-microsoft-contrib": "^6.0.0",
@@ -30,8 +30,8 @@
     "http-proxy-agent": "^2.1.0",
     "https-proxy-agent": "^2.2.3",
     "mkdirp": "^0.5.1",
-	"tmp": "^0.0.33",
-	"yauzl": "^2.10.0"
+    "tmp": "^0.0.33",
+    "yauzl": "^2.10.0"
   },
   "repository": {
     "type": "git",
