@@ -86,6 +86,10 @@ export const enum Events {
      */
     INSTALL_START = 'install_start',
     /**
+     * Entry extracted from downloaded archive, data will be path to file/folder
+     */
+    ENTRY_EXTRACTED = 'entry_extracted',
+    /**
      * Install End
      */
     INSTALL_END = 'install_end'
