@@ -92,13 +92,16 @@ export class Unzipper {
                 const stream = this.openZipStream(zipfile, entry);
                 const mode = modeFromEntry(entry);
 
-                throttler.queue(() => stream.then(readable => this.extractEntry(readable, entry.fileName, mode, targetPath).then(() => readNextEntry())))
-                    .then(undefined, e);
+                throttler.queue(() =>
+                    stream.then(readable =>
+                        this.extractEntry(readable, entry.fileName, mode, targetPath, extractedEntriesCount + 1, zipfile.entryCount).then(
+                            () => readNextEntry())))
+                .then(undefined, e);
             });
         });
     }
 
-    private extractEntry(stream: Readable, fileName: string, mode: number, targetPath: string): Promise<void> {
+    private extractEntry(stream: Readable, fileName: string, mode: number, targetPath: string, entryNumber: number, totalEntries: number): Promise<void> {
         const dirName = path.dirname(fileName);
         const targetDirName = path.join(targetPath, dirName);
         if (targetDirName.indexOf(targetPath) !== 0) {
@@ -112,7 +115,7 @@ export class Unzipper {
             try {
                 istream = createWriteStream(targetFileName, { mode });
                 istream.once('close', () => {
-                    this.eventEmitter.emit(Events.ENTRY_EXTRACTED, targetFileName);
+                    this.eventEmitter.emit(Events.ENTRY_EXTRACTED, targetFileName, entryNumber, totalEntries);
                     c();
                 });
                 istream.once('error', e);
