@@ -142,7 +142,8 @@ export class ServiceDownloadProvider {
                 {
                     file: pkg.tmpFile.name,
                     cwd: pkg.installPath,
-                    onentry: (entry: tar.ReadEntry) => this.eventEmitter.emit(Events.ENTRY_EXTRACTED, entry.path, ++entryCount, 0)
+                    // Currently just output -1 as total entries as that value isn't easily available using tar without extra work
+                    onentry: (entry: tar.ReadEntry) => this.eventEmitter.emit(Events.ENTRY_EXTRACTED, entry.path, ++entryCount, -1)
                 }
             ).then(() => {
                 this.eventEmitter.emit(Events.INSTALL_END);
