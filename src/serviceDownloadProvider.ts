@@ -5,6 +5,7 @@
 
 'use strict';
 import * as fs from 'fs';
+import * as tar from 'tar';
 import * as mkdirp from 'mkdirp';
 import { EventEmitter2 as EventEmitter } from 'eventemitter2';
 import * as tmp from 'tmp';
@@ -134,10 +135,24 @@ export class ServiceDownloadProvider {
     }
 
     private install(pkg: IPackage): Promise<void> {
-        this.eventEmitter.emit(Events.INSTALL_START, pkg.installPath);
-        return this.unzipper.extract(pkg.tmpFile.name, pkg.installPath).then(() => {
-            this.eventEmitter.emit(Events.INSTALL_END);
-        });
+        this.eventEmitter.emit(Events.INSTALL_START, pkg.url);
+        if (pkg.url.match(/\.tar\.gz|\.tar|\.gz$/i)) {
+            let entryCount = 0;
+            return tar.x(
+                {
+                    file: pkg.tmpFile.name,
+                    cwd: pkg.installPath,
+                    onentry: (entry: tar.ReadEntry) => this.eventEmitter.emit(Events.ENTRY_EXTRACTED, entry.path, ++entryCount, 0)
+                }
+            ).then(() => {
+                this.eventEmitter.emit(Events.INSTALL_END);
+            });
+        } else {
+            // Default to zip extracting if it's not a tarball
+            return this.unzipper.extract(pkg.tmpFile.name, pkg.installPath).then(() => {
+                this.eventEmitter.emit(Events.INSTALL_END);
+            });
+        }
     }
 }
 

@@ -17,6 +17,7 @@
     "@types/async-retry": "^1.4.1",
     "@types/mkdirp": "^0.5.1",
     "@types/node": "^9.4.6",
+    "@types/tar": "^4.0.3",
     "@types/tmp": "^0.0.33",
     "@types/yauzl": "^2.9.1",
     "husky": "^0.13.1",
@@ -30,6 +31,7 @@
     "http-proxy-agent": "^2.1.0",
     "https-proxy-agent": "^2.2.3",
     "mkdirp": "^0.5.1",
+    "tar": "^6.0.1",
     "tmp": "^0.0.33",
     "yauzl": "^2.10.0"
   },
