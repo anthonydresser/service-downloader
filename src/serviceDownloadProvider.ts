@@ -16,14 +16,14 @@ import { HttpClient } from './httpClient';
 import { PlatformNotSupportedError, DistributionNotSupportedError } from './errors';
 import { promisify } from 'util';
 import * as asyncRetry from 'async-retry';
-import { Unzipper } from './zip';
+import { ArchiveExtractor } from './extractor';
 /*
 * Service Download Provider class which handles downloading the service client
 */
 export class ServiceDownloadProvider {
 
     private httpClient = new HttpClient();
-    private unzipper = new Unzipper();
+    private extractor = new ArchiveExtractor();
     public readonly eventEmitter = new EventEmitter({ wildcard: true });
 
     constructor(
@@ -34,7 +34,7 @@ export class ServiceDownloadProvider {
         this.httpClient.eventEmitter.onAny((e, ...args) => {
             this.eventEmitter.emit(e, ...args);
         });
-        this.unzipper.eventEmitter.onAny((e, ...args) => {
+        this.extractor.eventEmitter.onAny((e, ...args) => {
             this.eventEmitter.emit(e, ...args);
         });
     }
@@ -134,26 +134,10 @@ export class ServiceDownloadProvider {
         });
     }
 
-    private install(pkg: IPackage): Promise<void> {
+    private async install(pkg: IPackage): Promise<void> {
         this.eventEmitter.emit(Events.INSTALL_START, pkg.url);
-        if (pkg.url.match(/\.tar\.gz|\.tar|\.gz$/i)) {
-            let entryCount = 0;
-            return tar.x(
-                {
-                    file: pkg.tmpFile.name,
-                    cwd: pkg.installPath,
-                    // Currently just output -1 as total entries as that value isn't easily available using tar without extra work
-                    onentry: (entry: tar.ReadEntry) => this.eventEmitter.emit(Events.ENTRY_EXTRACTED, entry.path, ++entryCount, -1)
-                }
-            ).then(() => {
-                this.eventEmitter.emit(Events.INSTALL_END);
-            });
-        } else {
-            // Default to zip extracting if it's not a tarball
-            return this.unzipper.extract(pkg.tmpFile.name, pkg.installPath).then(() => {
-                this.eventEmitter.emit(Events.INSTALL_END);
-            });
-        }
+        await this.extractor.extract(pkg.tmpFile.name, pkg.installPath);
+        this.eventEmitter.emit(Events.INSTALL_END);
     }
 }
 
