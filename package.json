@@ -5,7 +5,7 @@
   "main": "out/main.js",
   "typings": "out/main",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha **/*.test.js",
     "prepare": "npm run compile",
     "compile": "tsc -p ./src",
     "tslint": "tslint --project src/tsconfig.json --config tslint.json --rules-dir node_modules/tslint-microsoft-contrib",
@@ -16,13 +16,18 @@
   "devDependencies": {
     "@types/async-retry": "^1.4.1",
     "@types/mkdirp": "^0.5.1",
+    "@types/mocha": "^5.2.5",
     "@types/node": "^9.4.6",
+    "@types/rimraf": "^2.0.2",
     "@types/tar": "^4.0.3",
     "@types/tmp": "^0.0.33",
     "@types/yauzl": "^2.9.1",
     "husky": "^0.13.1",
+    "mocha": "^5.2.0",
+    "rimraf": "^3.0.2",
     "tslint": "^5.16.0",
     "tslint-microsoft-contrib": "^6.0.0",
+    "typemoq": "^2.1.0",
     "typescript": "^2.7.2"
   },
   "dependencies": {
