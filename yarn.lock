@@ -200,11 +200,6 @@ ci-info@^1.5.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-1.6.0.tgz#2ca20dbb9ceb32d4524a683303313f0304b1e497"
   integrity sha512-vsGdkwSCDpWmP80ncATX7iea5DWQemg1UgCW5J8tqjU3lYw4FBYuj89J0CTVomA7BEfvSZd84GmHko+MxFQU2A==
 
-circular-json@^0.3.1:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/circular-json/-/circular-json-0.3.3.tgz#815c99ea84f6809529d2f45791bdf82711352d66"
-  integrity sha512-UZK3NBx2Mca+b5LsG7bY183pHWt5Y1xts4P3Pz7ENTwGVnJOUWbRb3ocjvX7hx9tq/yTAdclXm9sZ38gNuem4A==
-
 color-convert@^1.9.0:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
@@ -422,11 +417,6 @@ js-yaml@^3.13.0:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-lodash@^4.17.4:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
-
 minimatch@3.0.4, minimatch@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.4.tgz#5166e286457f03306064be5497e8dbb0c3d32083"
@@ -519,11 +509,6 @@ path-parse@^1.0.6:
 pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
-
-postinstall-build@^5.0.1:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/postinstall-build/-/postinstall-build-5.0.3.tgz#238692f712a481d8f5bc8960e94786036241efc7"
-  integrity sha512-vPvPe8TKgp4FLgY3+DfxCE5PIfoXBK2lyLfNCxsRbDsV6vS4oU5RG/IWxrblMn6heagbnMED3MemUQllQ2bQUg==
 
 resolve@^1.3.2:
   version "1.11.0"
@@ -642,15 +627,6 @@ tsutils@^2.29.0:
   integrity sha512-g5JVHCIJwzfISaXpXE1qvNalca5Jwob6FjI4AoPlqMusJ6ftFE7IkkFoMhVLRgK+4Kx3gkzb8UZK5t5yTTvEmA==
   dependencies:
     tslib "^1.8.1"
-
-typemoq@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/typemoq/-/typemoq-2.1.0.tgz#4452ce360d92cf2a1a180f0c29de2803f87af1e8"
-  integrity sha512-DtRNLb7x8yCTv/KHlwes+NI+aGb4Vl1iPC63Hhtcvk1DpxSAZzKWQv0RQFY0jX2Uqj0SDBNl8Na4e6MV6TNDgw==
-  dependencies:
-    circular-json "^0.3.1"
-    lodash "^4.17.4"
-    postinstall-build "^5.0.1"
 
 typescript@^2.7.2:
   version "2.7.2"
