@@ -11,5 +11,8 @@ steps:
 - script: npm install
   displayName: Npm Install
 
+- script: npm test
+  displayName: Test
+
 - script: npm run tslint
   displayName: TSLint

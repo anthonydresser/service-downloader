@@ -5,6 +5,7 @@
 
 'use strict';
 import * as fs from 'fs';
+import * as tar from 'tar';
 import * as mkdirp from 'mkdirp';
 import { EventEmitter2 as EventEmitter } from 'eventemitter2';
 import * as tmp from 'tmp';
@@ -16,14 +17,14 @@ import { HttpClient } from './httpClient';
 import { PlatformNotSupportedError, DistributionNotSupportedError } from './errors';
 import { promisify } from 'util';
 import * as asyncRetry from 'async-retry';
-import { Unzipper } from './zip';
+import { ArchiveExtractor } from './extractor';
 /*
 * Service Download Provider class which handles downloading the service client
 */
 export class ServiceDownloadProvider {
 
     private httpClient = new HttpClient();
-    private unzipper = new Unzipper();
+    private extractor = new ArchiveExtractor();
     public readonly eventEmitter = new EventEmitter({ wildcard: true });
 
     constructor(
@@ -34,7 +35,7 @@ export class ServiceDownloadProvider {
         this.httpClient.eventEmitter.onAny((e, ...args) => {
             this.eventEmitter.emit(e, ...args);
         });
-        this.unzipper.eventEmitter.onAny((e, ...args) => {
+        this.extractor.eventEmitter.onAny((e, ...args) => {
             this.eventEmitter.emit(e, ...args);
         });
     }
@@ -134,11 +135,10 @@ export class ServiceDownloadProvider {
         });
     }
 
-    private install(pkg: IPackage): Promise<void> {
-        this.eventEmitter.emit(Events.INSTALL_START, pkg.installPath);
-        return this.unzipper.extract(pkg.tmpFile.name, pkg.installPath).then(() => {
-            this.eventEmitter.emit(Events.INSTALL_END);
-        });
+    private async install(pkg: IPackage): Promise<void> {
+        this.eventEmitter.emit(Events.INSTALL_START, pkg.url);
+        await this.extractor.extract(pkg.tmpFile.name, pkg.installPath);
+        this.eventEmitter.emit(Events.INSTALL_END);
     }
 }
 
