@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
 import { EventEmitter2 as EventEmitter } from 'eventemitter2';
 import * as tmp from 'tmp';
+import * as path from 'path';
 
 import { Runtime, getRuntimeDisplayName } from './platform';
 import { IConfig, IPackage, Events, IRetryOptions } from './interfaces';
@@ -123,12 +124,12 @@ export class ServiceDownloadProvider {
 
     private createTempFile(pkg: IPackage): Promise<tmp.SynchrounousResult> {
         return new Promise<tmp.SynchrounousResult>((resolve, reject) => {
-            tmp.file({ prefix: 'package-' }, (err, path, fd, cleanupCallback) => {
+            tmp.file({ prefix: 'package-', postfix: path.extname(pkg.url) }, (err, filepath, fd, cleanupCallback) => {
                 if (err) {
                     return reject(new Error('Error from tmp.file'));
                 }
 
-                resolve(<tmp.SynchrounousResult>{ name: path, fd: fd, removeCallback: cleanupCallback });
+                resolve(<tmp.SynchrounousResult>{ name: filepath, fd: fd, removeCallback: cleanupCallback });
             });
         });
     }
